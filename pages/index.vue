@@ -14,9 +14,9 @@ const {appBaseUrl, meldrxAuthUrl, meldrxClientId, meldrxWorkspaceId} = config.pu
 function login() {
   oauth2.authorize({
     clientId: meldrxClientId,
-    scope: "openid profile patient/*.read launch launch/patient",
+    scope: "openid profile fhirUser patient/Patient.read launch launch/patient",
     redirectUri: `${appBaseUrl}/login-callback`,
-    iss: `${meldrxAuthUrl}/api/fhir/${meldrxWorkspaceId}`,
+    iss: `${meldrxAuthUrl}/api/meldrxfhir/${meldrxWorkspaceId}`,
   })
 
 }

@@ -10,6 +10,7 @@
 <script setup>
 const links = [
   {text: 'patient information', to: '/me'},
+  {text: 'observations', to: '/observations'},
   {text: 'token', to: '/token'},
 ]
 </script>
