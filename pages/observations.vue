@@ -34,7 +34,7 @@
           </ul>
         </template>
         <template v-else-if="ob.valueQuantity">
-          [{{ ob.effectiveDateTime }}] {{ ob.code.text }} -  {{ ob.valueQuantity.value }}({{ ob.valueQuantity.unit }})
+          [{{ ob.effectiveDateTime }}] {{ ob.code.text }} - {{ ob.valueQuantity.value }}({{ ob.valueQuantity.unit }})
         </template>
         <template v-else>
           {{ ob.code.text }}
@@ -80,20 +80,20 @@ function loadObservations() {
     .then(client => {
 
       const patientId = client.getPatientId();
-      return client.request(`Observation?subject=${encodeURIComponent('Patient/'+patientId)}&category=${state.category}`);
+      return client.request(`Observation?subject=${encodeURIComponent('Patient/' + patientId)}&category=${state.category}`);
     })
     .then(bundle => {
       console.log("Observations response", bundle)
 
-      const observations = bundle.entry
-        .map(x => 'entry' in x.resource ? x.resource.entry : [])
-        .flat()
-        .map(x => x.resource)
-        .filter(x => x.resourceType === 'Observation')
-
-      console.log("Extracted observation", observations)
-
-      state.observations = observations
+      if (bundle.entry.every(x => x.resource.resourceType === 'Bundle')) {
+        state.observations = bundle.entry
+          .map(x => 'entry' in x.resource ? x.resource.entry : [])
+          .flat()
+          .map(x => x.resource)
+          .filter(x => x.resourceType === 'Observation')
+      } else {
+        state.observations = bundle.entry.map(x => x.resource).filter(x => x.resourceType === 'Observation')
+      }
     })
     .finally(() => {
       state.loading = false;
