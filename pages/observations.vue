@@ -80,11 +80,20 @@ function loadObservations() {
     .then(client => {
 
       const patientId = client.getPatientId();
-      return client.request(`Observation?subject=${encodeURIComponent('Patient/'+patientId)}&category=${state.category}`, {flat: true});
+      return client.request(`Observation?subject=${encodeURIComponent('Patient/'+patientId)}&category=${state.category}`);
     })
-    .then(observations => {
-      console.log("Observations response", observations)
-      state.observations = observations.filter(x => x.resourceType === 'Observation')
+    .then(bundle => {
+      console.log("Observations response", bundle)
+
+      const observations = bundle.entry
+        .map(x => 'entry' in x.resource ? x.resource.entry : [])
+        .flat()
+        .map(x => x.resource)
+        .filter(x => x.resourceType === 'Observation')
+
+      console.log("Extracted observation", observations)
+
+      state.observations = observations
     })
     .finally(() => {
       state.loading = false;
