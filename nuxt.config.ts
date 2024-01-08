@@ -4,9 +4,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appBaseUrl: '',
-      meldrxAuthUrl: '',
       meldrxClientId: '',
-      meldrxWorkspaceId: '',
+      meldrxWorkspaceUrl: '',
     }
   }
 })
