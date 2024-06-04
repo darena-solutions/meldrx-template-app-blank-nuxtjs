@@ -69,6 +69,9 @@ function loadObservations() {
     })
     .then(bundle => {
       console.log("Observations response", bundle)
+      if (!bundle.entry){
+        return;
+      }
 
       if (bundle.entry.every(x => x.resource.resourceType === 'Bundle')) {
         state.observations = bundle.entry

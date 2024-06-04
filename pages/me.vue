@@ -40,24 +40,26 @@ import Authenticated from "~/layouts/authenticated.vue";
 
 const state = reactive({'patient': null})
 
-
 onMounted(() => {
-    return fhirclient.oauth2.ready()
-        .then(client => {
-            const patientId = client.getPatientId();
-            return client.request(`Patient?_id=${patientId}`);
-        })
-        .then(bundle => {
-            if (bundle.entry.every(x => x.resource.resourceType === 'Bundle')) {
-                state.patient = bundle.entry
-                    .map(x => 'entry' in x.resource ? x.resource.entry : [])
-                    .flat()
-                    .map(x => x.resource)
-                    .filter(x => x.resourceType === 'Patient')
-                    [0]
-            } else {
-                state.patient = bundle.entry.map(x => x.resource).filter(x => x.resourceType === 'Patient')[0]
-            }
-        })
+  return fhirclient.oauth2.ready()
+    .then(client => {
+      const patientId = client.getPatientId();
+      return client.request(`Patient?_id=${patientId}`);
+    })
+    .then(bundle => {
+      if (!bundle.entry) {
+        return;
+      }
+      if (bundle.entry.every(x => x.resource.resourceType === 'Bundle')) {
+        state.patient = bundle.entry
+          .map(x => 'entry' in x.resource ? x.resource.entry : [])
+          .flat()
+          .map(x => x.resource)
+          .filter(x => x.resourceType === 'Patient')
+          [0]
+      } else {
+        state.patient = bundle.entry.map(x => x.resource).filter(x => x.resourceType === 'Patient')[0]
+      }
+    })
 })
 </script>
