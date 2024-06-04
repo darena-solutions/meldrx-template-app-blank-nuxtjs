@@ -3,17 +3,6 @@
 
     <h1>Patient Observations</h1>
 
-    <hr>
-    <h4>Add Height Observation</h4>
-    <div>
-      <label>Height:</label>
-      <input v-model="state.heightForm.value"/>
-    </div>
-    <div>
-      <button @click="createObservation">Submit</button>
-    </div>
-    <hr>
-
     <select v-model="state.category">
       <option v-for="cat in categories" :value="cat">{{ cat }}</option>
     </select>
@@ -66,10 +55,6 @@ const state = reactive({
   loading: false,
   category: categories[0],
   observations: null,
-  heightForm: {
-    value: 0,
-    unit: ['in', '[in_i]']
-  }
 })
 
 function loadObservations() {
@@ -84,6 +69,9 @@ function loadObservations() {
     })
     .then(bundle => {
       console.log("Observations response", bundle)
+      if (!bundle.entry){
+        return;
+      }
 
       if (bundle.entry.every(x => x.resource.resourceType === 'Bundle')) {
         state.observations = bundle.entry
@@ -103,54 +91,5 @@ function loadObservations() {
 
 onMounted(loadObservations)
 watch(() => state.category, loadObservations)
-
-function createObservation() {
-  if (state.loading) return;
-  state.loading = true;
-
-  return fhirclient.oauth2.ready()
-    .then(client => {
-
-      const patientId = client.getPatientId();
-
-      client.create({
-        "resourceType": "Observation",
-        "meta": {
-          "profile": ["http://hl7.org/fhir/StructureDefinition/vitalsigns"]
-        },
-        "status": "final",
-        "category": [{
-          "coding": [{
-            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-            "code": "vital-signs",
-            "display": "Vital Signs"
-          }],
-          "text": "Vital Signs"
-        }],
-        "code": {
-          "coding": [{
-            "system": "http://loinc.org",
-            "code": "8302-2",
-            "display": "Body height"
-          }],
-          "text": "Body height"
-        },
-        "subject": {
-          "reference": `Patient/${patientId}`
-        },
-        "effectiveDateTime": new Date().toISOString(),
-        "valueQuantity": {
-          "value": state.heightForm.value,
-          "unit": state.heightForm.unit[0],
-          "system": "http://unitsofmeasure.org",
-          "code": state.heightForm.unit[1]
-        }
-      })
-    })
-    .finally(() => {
-      state.loading = false;
-      state.heightForm.value = 0.0;
-    })
-}
 
 </script>

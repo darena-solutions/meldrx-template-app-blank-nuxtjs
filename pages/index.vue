@@ -14,7 +14,7 @@ const {appBaseUrl, meldrxClientId, meldrxWorkspaceUrl} = config.public;
 function login() {
   oauth2.authorize({
     clientId: meldrxClientId,
-    scope: "openid profile fhirUser patient/Patient.read launch launch/patient",
+    scope: "openid profile fhirUser patient/*.read launch launch/patient",
     redirectUri: `${appBaseUrl}/login-callback`,
     iss: meldrxWorkspaceUrl,
   })
